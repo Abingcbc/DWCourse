@@ -38,12 +38,18 @@ def prime_parse(response: BeautifulSoup, ID: str):
         restrict_level = get_content(restrict_level)
 
         price = response.find_all(attrs={'data-purchasing-modal-text':True})
-        rent_price = '$'+re.search(r'(?<=\$).*', 
-            price[0]['data-purchasing-modal-text']).group(0).strip() \
-            if not price is None else ''
-        buy_price = '$'+re.search(r'(?<=\$).*',
-            price[1]['data-purchasing-modal-text']).group(0).strip() \
-            if not price is None else ''
+        if len(price) > 1:
+            rent_price = '$'+re.search(r'(?<=\$).*', 
+                price[0]['data-purchasing-modal-text']).group(0).strip() \
+                if not price is None else '' 
+            buy_price = '$'+re.search(r'(?<=\$).*',
+                price[1]['data-purchasing-modal-text']).group(0).strip() \
+                if not price is None else ''
+        else:
+            rent_price = ''
+            buy_price = '$'+re.search(r'(?<=\$).*',
+                price[0]['data-purchasing-modal-text']).group(0).strip() \
+                if not price is None else ''
 
         meta_info_list = response.find_all(attrs={'data-automation-id':'meta-info'})
         meta_info = collections.defaultdict()
