@@ -80,6 +80,7 @@ class AmazonMoviesDownloaderMiddleware(object):
         if response.status != 200 or response.body is None:
             self.delete_proxy(request.meta['proxy'].replace('http://',''))
             request.meta['proxy'] = self.proxy()
+            print('\nUsing proxy to retry: ' + request.meta['proxy']+'\n')
             request.headers['User-Agent'] = random.choice(self.user_agents)
             return request
         return response
