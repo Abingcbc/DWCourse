@@ -9,6 +9,8 @@ import scrapy
 
 
 class AmazonMoviesItem(scrapy.Item):
+    validation = scrapy.Field()
+    ID = scrapy.Field()
     name = scrapy.Field()
     star_score = scrapy.Field()
     imdb_score = scrapy.Field()
@@ -17,8 +19,5 @@ class AmazonMoviesItem(scrapy.Item):
     restrict_level = scrapy.Field()
     rent_price = scrapy.Field()
     buy_price = scrapy.Field()
-    genres = scrapy.Field()
-    director = scrapy.Field()
-    starring = scrapy.Field()
-    details = scrapy.Field()
+    meta_info = scrapy.Field()
 

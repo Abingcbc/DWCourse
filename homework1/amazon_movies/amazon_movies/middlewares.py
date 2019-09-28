@@ -1,17 +1,11 @@
 # -*- coding: utf-8 -*-
 
-# Define here the models for your spider middleware
-#
-# See documentation in:
-# https://docs.scrapy.org/en/latest/topics/spider-middleware.html
-
 from scrapy import signals
-
+import random
+import time
+import requests
 
 class AmazonMoviesSpiderMiddleware(object):
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the spider middleware does not modify the
-    # passed objects.
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -57,9 +51,15 @@ class AmazonMoviesSpiderMiddleware(object):
 
 
 class AmazonMoviesDownloaderMiddleware(object):
-    # Not all methods need to be defined. If a method is not defined,
-    # scrapy acts as if the downloader middleware does not modify the
-    # passed objects.
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.cur_proxy = None
+        self.user_agents = [
+            'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
+            'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
+            'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16'
+        ]
 
     @classmethod
     def from_crawler(cls, crawler):
@@ -69,35 +69,32 @@ class AmazonMoviesDownloaderMiddleware(object):
         return s
 
     def process_request(self, request, spider):
-        # Called for each request that goes through the downloader
-        # middleware.
+        request.headers['User-Agent'] = random.choice(self.user_agents)
+        request.meta['proxy'] = self.proxy() if self.cur_proxy is None else self.cur_proxy
+        spider.logger.info('Using proxy: ' + request.meta['proxy'])
 
-        # Must either:
-        # - return None: continue processing this request
-        # - or return a Response object
-        # - or return a Request object
-        # - or raise IgnoreRequest: process_exception() methods of
-        #   installed downloader middleware will be called
-        return None
+    def proxy(self):
+        proxy = eval(requests.get("http://127.0.0.1:5010/get").text)['proxy']
+        return 'http://' + proxy
 
     def process_response(self, request, response, spider):
-        # Called with the response returned from the downloader.
-
-        # Must either;
-        # - return a Response object
-        # - return a Request object
-        # - or raise IgnoreRequest
+        if response.status != 200:
+            spider.logger.info('Proxy invalid: ' + request.meta['proxy'].replace('http://',''))
+            self.delete_proxy(request.meta['proxy'].replace('http://',''))
+            self.cur_proxy = self.proxy()
+            request.meta['proxy'] = self.cur_proxy
+            request.headers['User-Agent'] = random.choice(self.user_agents)
+            return request
         return response
 
     def process_exception(self, request, exception, spider):
-        # Called when a download handler or a process_request()
-        # (from other downloader middleware) raises an exception.
-
-        # Must either:
-        # - return None: continue processing this exception
-        # - return a Response object: stops process_exception() chain
-        # - return a Request object: stops process_exception() chain
-        pass
+        self.delete_proxy(request.meta['proxy'].replace('http://',''))
+        request.meta['proxy'] = self.proxy()
+        request.headers['User-Agent'] = random.choice(self.user_agents)
+        return request
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
+    
+    def delete_proxy(self, proxy):
+        requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
