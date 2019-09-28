@@ -53,7 +53,7 @@ def ordinary_parse(response: BeautifulSoup, ID: str):
             restrict_level, rent_price, buy_price, meta_info, True
     except Exception as e:
         with open('results/error.log', 'a') as file:
-            file.write('-'*5 + ' ' + ID + ' ' + '-'*5 + '\n')
+            file.write(ID + '\n')
             file.write(traceback.format_exc())
             file.write('\n')
         return '','','','','','','','',{},False

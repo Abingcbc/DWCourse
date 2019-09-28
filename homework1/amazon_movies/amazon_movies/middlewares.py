@@ -54,7 +54,6 @@ class AmazonMoviesDownloaderMiddleware(object):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.cur_proxy = None
         self.user_agents = [
             'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
             'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -70,19 +69,17 @@ class AmazonMoviesDownloaderMiddleware(object):
 
     def process_request(self, request, spider):
         request.headers['User-Agent'] = random.choice(self.user_agents)
-        request.meta['proxy'] = self.proxy() if self.cur_proxy is None else self.cur_proxy
-        spider.logger.info('Using proxy: ' + request.meta['proxy'])
+        request.meta['proxy'] = self.proxy()
+        print('\nUsing proxy: ' + request.meta['proxy']+'\n')
 
     def proxy(self):
         proxy = eval(requests.get("http://127.0.0.1:5010/get").text)['proxy']
         return 'http://' + proxy
 
     def process_response(self, request, response, spider):
-        if response.status != 200:
-            spider.logger.info('Proxy invalid: ' + request.meta['proxy'].replace('http://',''))
+        if response.status != 200 or response.body is None:
             self.delete_proxy(request.meta['proxy'].replace('http://',''))
-            self.cur_proxy = self.proxy()
-            request.meta['proxy'] = self.cur_proxy
+            request.meta['proxy'] = self.proxy()
             request.headers['User-Agent'] = random.choice(self.user_agents)
             return request
         return response
@@ -97,4 +94,5 @@ class AmazonMoviesDownloaderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
     
     def delete_proxy(self, proxy):
+        print('\nProxy invalid: ' + proxy + '\n')
         requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))

@@ -37,15 +37,13 @@ def prime_parse(response: BeautifulSoup, ID: str):
         restrict_level = response.find(attrs={'data-automation-id':'rating-badge'})
         restrict_level = get_content(restrict_level)
 
-        rent_price = response.find(attrs={'data-purchasing-modal-text':True})
-        rent_price = re.search(r'(?<=\$).*', 
-        rent_price['data-purchasing-modal-text']).group(0).strip() \
-            if not rent_price is None else ''
-
-        buy_price = response.find(attrs={'data-purchasing-text':True})
-        buy_price = re.search(r'(?<=\$).*',
-            buy_price['data-purchasing-text']).group(0).strip() \
-            if not response is None else ''
+        price = response.find_all(attrs={'data-purchasing-modal-text':True})
+        rent_price = '$'+re.search(r'(?<=\$).*', 
+            price[0]['data-purchasing-modal-text']).group(0).strip() \
+            if not price is None else ''
+        buy_price = '$'+re.search(r'(?<=\$).*',
+            price[1]['data-purchasing-modal-text']).group(0).strip() \
+            if not price is None else ''
 
         meta_info_list = response.find_all(attrs={'data-automation-id':'meta-info'})
         meta_info = collections.defaultdict()
@@ -58,7 +56,7 @@ def prime_parse(response: BeautifulSoup, ID: str):
         restrict_level, rent_price, buy_price, meta_info, True
     except Exception as e:
         with open('results/error.log', 'a') as file:
-            file.write('-'*5 + ' ' + ID + ' ' + '-'*5 + '\n')
+            file.write(ID + '\n')
             file.write(traceback.format_exc())
             file.write('\n')
         return '','','','','','','','',{},False
