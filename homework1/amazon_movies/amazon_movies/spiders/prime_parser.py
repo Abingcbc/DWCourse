@@ -45,6 +45,9 @@ def prime_parse(response: BeautifulSoup, ID: str):
             buy_price = '$'+re.search(r'(?<=\$).*',
                 price[1]['data-purchasing-modal-text']).group(0).strip() \
                 if not price is None else ''
+        elif len(price) == 0:
+            rent_price = ''
+            buy_price = ''
         else:
             rent_price = ''
             buy_price = '$'+re.search(r'(?<=\$).*',

@@ -44,7 +44,7 @@ class AmazonSpider(scrapy.Spider):
             try_again = Request('https://www.amazon.com/dp/'+item['ID'], callback=self.parse)
             try_again.headers['User-Agent'] = random.choice(self.user_agents)
             try_again.meta['proxy'] = 'http://'+ \
-                eval(requests.get("http://127.0.0.1:5010/get").text)['proxy']
+                eval(requests.get("http://127.0.0.1:5010/get/").text)['proxy']
             yield try_again
         else:
             page_type = response.find(id='productTitle')
