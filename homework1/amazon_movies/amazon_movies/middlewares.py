@@ -73,7 +73,7 @@ class AmazonMoviesDownloaderMiddleware(object):
         print('\nUsing proxy: ' + request.meta['proxy']+'\n')
 
     def proxy(self):
-        proxy = eval(requests.get("http://127.0.0.1:5010/get").text)['proxy']
+        proxy = eval(requests.get("http://127.0.0.1:5010/get/").text)['proxy']
         return 'http://' + proxy
 
     def process_response(self, request, response, spider):
@@ -85,7 +85,8 @@ class AmazonMoviesDownloaderMiddleware(object):
         return response
 
     def process_exception(self, request, exception, spider):
-        self.delete_proxy(request.meta['proxy'].replace('http://',''))
+        if 'proxy' in request.meta.keys():
+            self.delete_proxy(request.meta['proxy'].replace('http://',''))
         request.meta['proxy'] = self.proxy()
         request.headers['User-Agent'] = random.choice(self.user_agents)
         return request
