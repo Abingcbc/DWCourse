@@ -24,9 +24,8 @@ def ordinary_parse(response: BeautifulSoup, ID: str):
         year = year.find_parent(name='li').get_text() if not year is None else ''
         year = year.strip().split(',')[-1].strip()
 
-        restrict_level = detail_table.find(text=re.compile(r'^Rated*'))
-        restrict_level = restrict_level.find_parent(name='li') \
-            .find(attrs={'class':'a-size-small'}).string.strip() \
+        restrict_level = response.find(id='bylineInfo').find(text=re.compile(r'^Rated*'))
+        restrict_level = restrict_level.parent.next_sibling.next_sibling.get_text().strip() \
             if not restrict_level is None else ''
         
         rent_price = ''

@@ -14,7 +14,7 @@ import requests
 class AmazonSpider(scrapy.Spider):
     name = 'amazon'
     allowed_domains = ['www.amazon.com']
-    start_urls = []
+    start_urls = ['https://www.amazon.com/dp/B0076Z4BBG']
     user_agents = [
         'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -23,15 +23,15 @@ class AmazonSpider(scrapy.Spider):
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
-        count = 0
-        with open('movies_id.txt', 'r') as file:
-            for line in file:
-                if count >= 1:
-                    break
-                if len(line.strip()) == 0:
-                    continue
-                self.start_urls.append('https://'+self.allowed_domains[0]+'/dp/'+line.strip())
-                count += 1
+        # count = 0
+        # with open('movies_id.txt', 'r') as file:
+        #     for line in file:
+        #         if count >= 1:
+        #             break
+        #         if len(line.strip()) == 0:
+        #             continue
+        #         self.start_urls.append('https://'+self.allowed_domains[0]+'/dp/'+line.strip())
+        #         count += 1
 
     def parse(self, response):
         item = AmazonMoviesItem()
