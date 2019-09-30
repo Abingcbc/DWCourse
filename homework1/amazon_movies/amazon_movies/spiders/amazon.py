@@ -45,8 +45,9 @@ class AmazonSpider(scrapy.Spider):
             requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
             try_again = Request('https://www.amazon.com/dp/'+item['ID'], callback=self.parse)
             try_again.headers['User-Agent'] = random.choice(self.user_agents)
-            try_again.meta['proxy'] = 'http://'+ \
-                eval(requests.get("http://127.0.0.1:5010/get/").text)['proxy']
+            r = eval(requests.get("http://127.0.0.1:5010/get/").text)
+            if 'retry_times' in r:
+                try_again.meta['proxy'] = 'http://'+ ['proxy']
             try_again.meta['retry_times'] = 0
             yield try_again
         else:
