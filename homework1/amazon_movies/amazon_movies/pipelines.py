@@ -4,9 +4,9 @@ class AmazonMoviesPipeline(object):
     def process_item(self, item, spider):
         if not item['validation']:
             return
-        with open('results/found.txt', 'a') as file:
+        with open('found.txt', 'a') as file:
             file.write(item['ID']+'\n')
-        with open('results/results.txt', 'a') as file:
+        with open('results.txt', 'a') as file:
             for key, value in item.items():
                 if key == 'meta_info':
                     for k, v in value.items():

@@ -10,11 +10,13 @@ import os
 from scrapy.http import Request
 import random
 import requests
+from scrapy_redis.spiders import RedisSpider
+# from amazon_movies.url_init import init
 
 class AmazonSpider(scrapy.Spider):
     name = 'amazon'
     allowed_domains = ['www.amazon.com']
-    start_urls = ['https://www.amazon.com/dp/B0076Z4BBG']
+    start_urls = []
     user_agents = [
         'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
         'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
@@ -23,28 +25,29 @@ class AmazonSpider(scrapy.Spider):
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
-        # count = 0
-        # with open('movies_id.txt', 'r') as file:
-        #     for line in file:
-        #         if count >= 1:
-        #             break
-        #         if len(line.strip()) == 0:
-        #             continue
-        #         self.start_urls.append('https://'+self.allowed_domains[0]+'/dp/'+line.strip())
-        #         count += 1
+        # init('amazon', 'https://www.amazon.com/dp/', 
+        # '/Users/cbc/Project/DWCourse/homework1/data/movies_id.txt',password='friday')
+        with open('movies_id.txt', 'r') as file:
+            for line in file:
+                if len(line.strip()) == 0:
+                    continue
+                self.start_urls.append('https://'+self.allowed_domains[0]+'/dp/'+line.strip())
 
     def parse(self, response):
         item = AmazonMoviesItem()
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
+        proxy = response.request.meta['proxy'].replace('http://','')
         response = BeautifulSoup(response.body, 'lxml')
         # If this film is banned by robot check, try it again.
         if not response.find(name='title', text=re.compile('Robot Check')) is None:
             print ('\nRobot check triggered\n')
+            requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
             try_again = Request('https://www.amazon.com/dp/'+item['ID'], callback=self.parse)
             try_again.headers['User-Agent'] = random.choice(self.user_agents)
             try_again.meta['proxy'] = 'http://'+ \
                 eval(requests.get("http://127.0.0.1:5010/get/").text)['proxy']
+            try_again.meta['retry_times'] = 0
             yield try_again
         else:
             page_type = response.find(id='productTitle')

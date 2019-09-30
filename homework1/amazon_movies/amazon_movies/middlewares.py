@@ -62,39 +62,49 @@ class AmazonMoviesDownloaderMiddleware(object):
 
     @classmethod
     def from_crawler(cls, crawler):
-        # This method is used by Scrapy to create your spiders.
         s = cls()
         crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
         return s
 
-    def process_request(self, request, spider):
+    def init_request(self, request):
         request.headers['User-Agent'] = random.choice(self.user_agents)
         request.meta['proxy'] = self.proxy()
-        print('\nUsing proxy: ' + request.meta['proxy']+'\n')
+        if 'retry_times' in request.meta.keys():
+            request.meta['retry_times'] += 1
+        else:
+            request.meta['retry_times'] = 0
+        return request
+
+    def process_request(self, request, spider):
+        request = self.init_request(request)
+        print('Using proxy: ' + request.meta['proxy'])
+        print(request.url + '\n')
 
     def proxy(self):
         proxy = eval(requests.get("http://127.0.0.1:5010/get/").text)['proxy']
-        return 'http://' + proxy
+        return "http://" + proxy
 
     def process_response(self, request, response, spider):
         if response.status != 200 or response.body is None:
+            print('ErrorCode: ' + str(response.status) + '\n')
             self.delete_proxy(request.meta['proxy'].replace('http://',''))
-            request.meta['proxy'] = self.proxy()
-            print('\nUsing proxy to retry: ' + request.meta['proxy']+'\n')
-            request.headers['User-Agent'] = random.choice(self.user_agents)
-            return request
+            return self.init_request(request)
         return response
 
     def process_exception(self, request, exception, spider):
+        print('Error: '+str(exception) + '\n')
         if 'proxy' in request.meta.keys():
             self.delete_proxy(request.meta['proxy'].replace('http://',''))
-        request.meta['proxy'] = self.proxy()
-        request.headers['User-Agent'] = random.choice(self.user_agents)
-        return request
+        if request.meta['retry_times'] >= 100:
+            with open('error.log', 'a') as file:
+                file.write(request.url.split('/')[-1] + '\n')
+                file.write('Retry times overflow\n')
+        else:
+            return self.init_request(request)
 
     def spider_opened(self, spider):
         spider.logger.info('Spider opened: %s' % spider.name)
     
     def delete_proxy(self, proxy):
-        print('\nProxy invalid: ' + proxy + '\n')
+        print('Proxy invalid: ' + proxy + '\n')
         requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))

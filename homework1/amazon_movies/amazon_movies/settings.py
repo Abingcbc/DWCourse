@@ -22,7 +22,7 @@ NEWSPIDER_MODULE = 'amazon_movies.spiders'
 ROBOTSTXT_OBEY = False
 
 # Configure maximum concurrent requests performed by Scrapy (default: 16)
-CONCURRENT_REQUESTS = 32
+CONCURRENT_REQUESTS = 64
 
 # Configure a delay for requests for the same website (default: 0)
 # See https://docs.scrapy.org/en/latest/topics/settings.html#download-delay
@@ -50,18 +50,18 @@ DEFAULT_REQUEST_HEADERS = {
 #    'amazon_movies.middlewares.AmazonMoviesSpiderMiddleware': 543,
 #}
 
+RETRY_ENABLED = False
+
 DOWNLOAD_TIMEOUT = 10
 
-RETRY_ENABLED = True
-RETRY_TIMES = 100
-RETRY_HTTP_CODECS = [500, 502, 503, 504, 522, 524, 408, 400]
+LOG_LEVEL = 'INFO'
 
 # Enable or disable downloader middlewares
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    'amazon_movies.middlewares.AmazonMoviesDownloaderMiddleware': 200,
-   'scrapy.downloadermiddlewares.retry.RetryMiddleware':300,
-   'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware':400
+   'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware':400,
+   # 'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': 500
 }
 
 # Enable or disable extensions
@@ -101,8 +101,8 @@ ITEM_PIPELINES = {
 # SCHEDULER = "scrapy_redis.scheduler.Scheduler"
 # DUPEFILTER_CLASS = "scrapy_redis.dupefilter.RFPDupeFilter"
 
-# REDIS_HOST = '47.103.21.70'
+# REDIS_HOST = '127.0.0.1'
 # REDIS_PORT = 6379
-# REDIS_PASSWORD = 'friday'
+# REDIS_PARAMS = {'password': ''}
 
 # SCHEDULER_QUEUE_CLASS = 'scrapy_redis.queue.FifoQueue'
