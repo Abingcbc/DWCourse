@@ -103,7 +103,8 @@ class AmazonMoviesDownloaderMiddleware(object):
         return response
 
     def process_exception(self, request, exception, spider):
-        print('Error: '+str(exception) + '\n')
+        print('MyError: '+str(exception) + '\n')
+        self.delete_proxy(request.meta['proxy'].replace('http://',''))
         if 'retry_times' not in request.meta.keys():
             request.meta['retry_times'] = 0
         if request.meta['retry_times'] >= 100:
