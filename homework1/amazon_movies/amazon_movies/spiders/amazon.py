@@ -35,13 +35,15 @@ class AmazonSpider(scrapy.Spider):
 
     def parse(self, response):
         item = AmazonMoviesItem()
+        print('Get page ' + str(response.url))
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
         proxy = response.request.meta['proxy'].replace('http://','')
         response = BeautifulSoup(response.body, 'lxml')
         # If this film is banned by robot check, try it again.
         if not response.find(name='title', text=re.compile('Robot Check')) is None:
-            print ('\nRobot check triggered\n')
+            print ('Robot check triggered')
+            print('Proxy invalid: ' + proxy + '\n')
             requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
             try_again = Request('https://www.amazon.com/dp/'+item['ID'], callback=self.parse)
             try_again.headers['User-Agent'] = random.choice(self.user_agents)

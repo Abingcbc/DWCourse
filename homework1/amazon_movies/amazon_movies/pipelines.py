@@ -8,14 +8,16 @@ class AmazonMoviesPipeline(object):
             file.write(item['ID']+'\n')
         with open('results.txt', 'a') as file:
             for key, value in item.items():
-                if value == '':
-                    continue
                 if key == 'meta_info':
                     for k, v in value.items():
+                        if v.strip() == '':
+                            continue
                         file.write(k.strip().replace(':','') + ': ' 
                         + v.strip().replace(':','') + '\n')
                 elif key == 'validation':
                     continue
+                elif value.strip() == '':
+                        continue
                 else:
                     file.write(key.strip().replace(':','') + ': ' 
                     + value.strip().replace(':','') + '\n')

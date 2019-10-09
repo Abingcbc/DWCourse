@@ -90,6 +90,7 @@ class AmazonMoviesDownloaderMiddleware(object):
 
     def proxy(self):
         r = eval(requests.get("http://127.0.0.1:5010/get/").text)
+        # wait until there is available proxy
         while 'proxy' not in r:
             r = eval(requests.get("http://127.0.0.1:5010/get/").text)
         proxy = r['proxy']
@@ -97,7 +98,7 @@ class AmazonMoviesDownloaderMiddleware(object):
 
     def process_response(self, request, response, spider):
         if response.status != 200 or response.body is None:
-            print('ErrorCode: ' + str(response.status) + '\n')
+            print('ErrorCode: ' + str(response.status))
             self.delete_proxy(request.meta['proxy'].replace('http://',''))
             return self.init_request(request)
         return response
