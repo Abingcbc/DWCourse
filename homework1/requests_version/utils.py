@@ -1,8 +1,12 @@
 import logging
+from init import count
 
 def write_result(item):
+    global count
     if not item['validation']:
         return
+    count += 1
+    log(item['ID'] + ' : ' + str(count))
     with open('found.txt', 'a') as file:
         file.write(item['ID']+'\n')
     with open('results.txt', 'a') as file:
