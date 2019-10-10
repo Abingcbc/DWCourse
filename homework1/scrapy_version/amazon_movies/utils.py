@@ -27,21 +27,13 @@ def delete_proxy(proxy):
     print('Proxy invalid: ' + proxy + '\n')
     requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
 
-def new_request(request, invalid_proxy=''):
+def new_request(request):
     request.headers['User-Agent'] = random.choice(user_agents)
-    request.headers[':authority'] = 'www.amazon.com'
-    request.headers[':method'] = 'GET'
-    request.headers[':path'] = '/dp/B003AI2VGA'
-    request.headers[':scheme'] = 'https'
-    request.headers['accept'] = 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3'
-    request.headers['accept-encoding'] = 'gzip, deflate, br'
-    request.headers['accept-language'] = 'en-US,en;q=0.9,zh-CN;q=0.8,zh;q=0.7'
-    request.headers['cache-control'] = 'no-cache'
+    request.headers['accept'] = '*/*'
+    request.headers['Accept-Encoding'] = 'gzip, deflate'
     request.meta['proxy'] = proxy()
     if 'retry_times' in request.meta.keys():
         request.meta['retry_times'] += 1
     else:
         request.meta['retry_times'] = 0
-    if invalid_proxy != '':
-        delete_proxy(invalid_proxy)
     return request

@@ -11,7 +11,7 @@ from scrapy.http import Request
 import random
 import requests
 from scrapy_redis.spiders import RedisSpider
-# from amazon_movies.url_init import init
+import amazon_movies.utils as utils
 
 class AmazonSpider(scrapy.Spider):
     name = 'amazon'
@@ -25,8 +25,6 @@ class AmazonSpider(scrapy.Spider):
 
     def __init__(self, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
-        # init('amazon', 'https://www.amazon.com/dp/', 
-        # '/Users/cbc/Project/DWCourse/homework1/data/movies_id.txt',password='friday')
         with open('movies_id.txt', 'r') as file:
             for line in file:
                 if len(line.strip()) == 0:

@@ -14,6 +14,7 @@ class AmazonMoviesDownloaderMiddleware(object):
         request = utils.new_request(request)
         print('Using proxy: ' + request.meta['proxy'])
         print(request.url + '\n')
+        print(request.meta['proxy'])
 
     def process_response(self, request, response, spider):
         if response.status != 200 or response.body is None:

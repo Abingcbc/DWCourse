@@ -175,6 +175,9 @@ class GetFreeProxy(object):
             'https://www.kuaidaili.com/free/inha/',
             'https://www.kuaidaili.com/free/intr/'
         ]
+        for i in range(2,40):
+            url_list.append(url_list[0]+str(i)+'/')
+            url_list.append(url_list[1]+str(i)+'/')
         for url in url_list:
             tree = getHtmlTree(url)
             proxy_list = tree.xpath('.//table//tr')

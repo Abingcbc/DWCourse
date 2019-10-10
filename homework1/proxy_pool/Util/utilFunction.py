@@ -105,7 +105,7 @@ def validUsefulProxy(proxy):
         'user-agent': random.choice(user_agents)
     }
     try:
-        r = requests.get('https://www.baidu.com', headers=headers, proxies=proxies, timeout=10, verify=False)
+        r = requests.get('http://www.baidu.com', headers=headers, proxies=proxies, timeout=10, verify=False)
         if r.status_code == 200:
             return True
     except Exception as e:

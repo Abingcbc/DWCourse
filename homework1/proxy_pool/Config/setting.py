@@ -59,7 +59,6 @@ PROXY_GETTER = [
     "freeProxy04",
     "freeProxy05",
     "freeProxy09",
-    "freeProxy12",
     "freeProxy13",
     "freeProxy14",
 ]
