@@ -5,6 +5,9 @@ from crawler import crawl, run
 from init import read_urls
 import threading
 import logging
+import warnings
+
+warnings.filterwarnings('ignore')
 
 logging.basicConfig(
     level=logging.INFO,
