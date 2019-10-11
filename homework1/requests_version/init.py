@@ -18,7 +18,7 @@ user_agents = [
 ]
 
 def read_urls():
-    with open('/Users/cbc/Project/DWCourse/homework1/scrapy_version/movies_id.txt', 'r') as file:
+    with open('movies_id.txt', 'r') as file:
         for line in file:
             if len(line.strip()) == 0:
                 continue

@@ -8,14 +8,15 @@ import re
 import prime_parser
 import ordinary_parser
 import threading
+from imageRecognize.imageRec import main
 
 
 def get_and_parse(url, item):
     recieved = False
     headers = {
         "Accept-Encoding": "gzip, deflate",
-        "Accept": "*/*",
-        "user-agent": random.choice(user_agents),
+        "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3",
+        "user-agent": random.choice(user_agents)
     }
     proxyHost = "http-dyn.abuyun.com"
     proxyPort = "9020"
