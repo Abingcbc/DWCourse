@@ -10,19 +10,15 @@ import os
 from scrapy.http import Request
 import random
 import requests
-from scrapy_redis.spiders import RedisSpider
 import amazon_movies.utils as utils
+import urllib
+from imageRecognize.imageRec import parse_robot
+from amazon_movies.utils import *
 
 class AmazonSpider(scrapy.Spider):
     name = 'amazon'
     allowed_domains = ['www.amazon.com']
     start_urls = []
-    user_agents = [
-        'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/39.0.2171.71 Safari/537.36',
-        'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.11 (KHTML, like Gecko) Chrome/23.0.1271.64 Safari/537.11',
-        'Mozilla/5.0 (Windows; U; Windows NT 6.1; en-US) AppleWebKit/534.16 (KHTML, like Gecko) Chrome/10.0.648.133 Safari/534.16'
-    ]
-
     def __init__(self, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
         with open('movies_id.txt', 'r') as file:
@@ -37,34 +33,36 @@ class AmazonSpider(scrapy.Spider):
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
         proxy = response.request.meta['proxy'].replace('http://','')
-        response = BeautifulSoup(response.body, 'lxml')
+        content = BeautifulSoup(response.body, 'lxml')
+        if response.status == 404:
+            item['validation'] = False
+            yield item
         # If this film is banned by robot check, try it again.
-        if not response.find(name='title', text=re.compile('Robot Check')) is None:
+        elif not content.find(name='title', text=re.compile('Robot Check')) is None:
             print ('Robot check triggered')
-            print('Proxy invalid: ' + proxy + '\n')
-            requests.get("http://127.0.0.1:5010/delete/?proxy={}".format(proxy))
-            try_again = Request('https://www.amazon.com/dp/'+item['ID'], callback=self.parse)
-            try_again.headers['User-Agent'] = random.choice(self.user_agents)
-            r = eval(requests.get("http://127.0.0.1:5010/get/").text)
-            if 'retry_times' in r:
-                try_again.meta['proxy'] = 'http://'+ ['proxy']
-            try_again.meta['retry_times'] = 0
-            yield try_again
+            urllib.request.urlretrieve(content.find(name='div', attrs={'class':'a-row a-text-center'}).
+            find(name='img',attrs={'src':True}), 'robot.jpg')
+            capt_string = parse_robot('robot.jpg')
+            if capt_string == "error":
+                yield scrapy.Request(response.url, dont_filter=True)
+            else:
+                data = {'field-keywords': capt_string}
+                yield scrapy.FormRequest.from_response(response, formdata=data, callback = self.parse, dont_filter=True)
         else:
-            page_type = response.find(id='productTitle')
+            page_type = content.find(id='productTitle')
             if page_type is None:
-                print('-'*10 + item['ID'] + ': Prime' + '-'*10)
+                # print('-'*10 + item['ID'] + ': Prime' + '-'*10)
                 item['name'], item['star_score'], item['imdb_score'], \
                 item['time_len'], item['year'], item['restrict_level'], \
                 item['rent_price'], item['buy_price'], item['meta_info'], \
-                item['validation'] = prime_parser.prime_parse(response, item['ID'])
+                item['validation'] = prime_parser.prime_parse(content, item['ID'])
                 yield item
             else:
-                print('-'*10 + item['ID'] + ': Ordinary' + '-'*10)
+                # print('-'*10 + item['ID'] + ': Ordinary' + '-'*10)
                 item['name'], item['star_score'], item['imdb_score'], \
                 item['time_len'], item['year'], item['restrict_level'], \
                 item['rent_price'], item['buy_price'], item['meta_info'], \
-                item['validation'] = ordinary_parser.ordinary_parse(response, item['ID'])
+                item['validation'] = ordinary_parser.ordinary_parse(content, item['ID'])
                 yield item
 
         
