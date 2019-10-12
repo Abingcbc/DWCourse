@@ -1,6 +1,8 @@
 import logging
 import random
 import requests
+import logging
+import warnings
 
 count = 0
 user_agents = [
@@ -44,13 +46,24 @@ def write_result(item):
 
 # print log in console and into file
 def log(message):
+    warnings.filterwarnings('ignore')
+
+    logging.basicConfig(
+        level=logging.INFO,
+        filename="amazon.log",
+        filemode="a",
+        format="%(asctime)s - %(levelname)s: %(message)s",
+    )
     print(message)
     logging.info(message)
 
 def new_request(request):
     request.headers['User-Agent'] = random.choice(user_agents)
-    while not eval(requests.get('http://127.0.0.1:5000/valid').text)['valid']:
+    response = requests.get('http://127.0.0.1:5000/valid').text
+    while not eval(response)['valid'] == 1:
         continue
-    r = eval(requests.get('http://127.0.0.1:5000/get').text)['proxy']
-    request.meta['proxy'] = {'http':'http://'+r, 'https':'https://'+r}
+    response = requests.get('http://127.0.0.1:5000/get').text
+    request.meta['proxy'] = 'http://' + eval(response)['proxies']
+    log('Using proxy: ' + request.meta['proxy'])
+    log(request.url)
     return request

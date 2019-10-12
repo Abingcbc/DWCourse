@@ -1,14 +1,25 @@
 # -*- coding: utf-8 -*-
 
+from scrapy import signals
 import random
 import time
 import requests
 from amazon_movies.utils import *
+import traceback
 
 class AmazonMoviesDownloaderMiddleware(object):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+    
+    @classmethod
+    def from_crawler(cls, crawler):
+        s = cls()
+        crawler.signals.connect(s.spider_opened, signal=signals.spider_opened)
+        return s
+
+    def spider_opened(self, spider):
+        spider.logger.info('Spider opened: %s' % spider.name)
 
     def process_request(self, request, spider):
         request = new_request(request)
@@ -26,7 +37,8 @@ class AmazonMoviesDownloaderMiddleware(object):
         return response
 
     def process_exception(self, request, exception, spider):
-        log('MyError: '+str(exception) + '\n')
+        log('MyError: ')
+        log(traceback.format_exc())
         requests.get('http://127.0.0.1:5000/delete/'+
         request.meta['proxy'].replace('http://',''))
         with open('error.log', 'a') as file:

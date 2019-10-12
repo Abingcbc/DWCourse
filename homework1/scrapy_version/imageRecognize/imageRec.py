@@ -5,9 +5,6 @@ from os import listdir
 import PIL
 import operator
 import sys, os, re, math
-#set default decoding way,when encoding
-reload(sys)
-sys.setdefaultencoding('utf-8')  
 
 def cut_edge(im):
     '''

@@ -22,7 +22,11 @@ class AmazonSpider(scrapy.Spider):
     def __init__(self, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
         with open('movies_id.txt', 'r') as file:
+            count = 0
             for line in file:
+                if count > 1:
+                    break
+                count += 1
                 if len(line.strip()) == 0:
                     continue
                 self.start_urls.append('https://'+self.allowed_domains[0]+'/dp/'+line.strip())
