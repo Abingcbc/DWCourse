@@ -21,17 +21,17 @@ def get_and_parse(url, item, session, thread_name):
         "user-agent": random.choice(user_agents),
         # "Proxy-Authorization": 'Basic '+ appKey
     }
-    ip_port = 'secondtransfer.moguproxy.com:9001'
-    ip_port = requests.get('http://127.0.0.1:5000/get').text
-    ip_port = eval(ip_port)['proxies']
-    proxies = {"http": "http://" + ip_port}
+    # ip_port = 'secondtransfer.moguproxy.com:9001'
+    # ip_port = requests.get('http://127.0.0.1:5000/get').text
+    # ip_port = eval(ip_port)['proxies']
+    # proxies = {"http": "http://" + ip_port}
     try:
-        session.proxies.update(proxies)
-        response = requests.get(url=url, headers=headers,
+        # session.proxies.update(proxies)
+        response = session.get(url=url, headers=headers,
         timeout=20, verify=False, allow_redirects=True)
     except Exception as e:
         log(item["ID"] + ": " + str(e))
-        requests.get('http://127.0.0.1:5000/delete?proxy='+ip_port)
+        # requests.get('http://127.0.0.1:5000/delete?proxy='+ip_port)
         start_urls.put(url)
         return -1
     response_code = response.status_code
@@ -41,36 +41,38 @@ def get_and_parse(url, item, session, thread_name):
                 file.write(item["ID"] + "\n")
                 return 0
         log("ErrorCode: " + str(response_code))
-        requests.get('http://127.0.0.1:5000/delete?proxy='+ip_port)
+        # requests.get('http://127.0.0.1:5000/delete?proxy='+ip_port)
         start_urls.put(url)
         return -1
     else:
         content = BeautifulSoup(response.text, "lxml")
         if not (content.find(name="title", text=re.compile("Robot Check")) is None):
             log("Robot check triggered " + url)
-            # pic = session.get(content.find(name='div', attrs={'class':'a-row a-text-center'}).
-            # find(name='img',attrs={'src':True})['src'])
-            # with open(thread_name+'.jpg','wb') as file:
-            #     file.write(pic.content)
-            # capt_string = parse_robot(thread_name+'.jpg', thread_name)
-            # if capt_string == 'error':
-            #     start_urls.put(url)
-            #     return -1
-            # data = {
-            #     'amzn':content.find(attrs={'name':'amzn'})['value'],
-            #     'amzn-r':content.find(attrs={'name':'amzn-r'})['value'],
-            #     'field-keywords': capt_string
-            # }
-            # headers['Referer'] = url
-            # r = session.get('https://www.amazon.com/errors/validateCapcha', 
-            # data=data,headers=headers,allow_redirects=True)
-            # with open('/Users/cbc/Desktop/1.html') as file:
-            #     file.write(r.text)
-            # print(r.status_code)
-            # return get_and_parse(url, item, session, thread_name)
-            start_urls.put(url)
-            requests.get('http://127.0.0.1:5000/delete?proxy='+ip_port)
-            return -1
+            pic = session.get(content.find(name='div', attrs={'class':'a-row a-text-center'}).
+            find(name='img',attrs={'src':True})['src'])
+            with open(thread_name+'.jpg','wb') as file:
+                file.write(pic.content)
+            capt_string = parse_robot(thread_name+'.jpg', thread_name)
+            if capt_string == 'error':
+                start_urls.put(url)
+                return -1
+            data = {
+                'amzn':content.find(attrs={'name':'amzn'})['value'],
+                'amzn-r':content.find(attrs={'name':'amzn-r'})['value'],
+                'field-keywords': capt_string
+            }
+            headers['Referer'] = url
+            headers['cookie'] = session.cookies
+            headers['upgrade-insecure-requests'] = 1
+            r = session.get('https://www.amazon.com/errors/validateCapcha', 
+            params=data,headers=headers,allow_redirects=True)
+            with open('/Users/cbc/Desktop/1.html') as file:
+                file.write(r.text)
+            print(r.status_code)
+            return get_and_parse(url, item, session, thread_name)
+            # start_urls.put(url)
+            # requests.get('http://127.0.0.1:5000/delete?proxy='+ip_port)
+            # return -1
         else:
             page_type = content.find(id="productTitle")
             if page_type is None:
@@ -120,7 +122,7 @@ def run(thread_name):
 def crawl():
     threads = []
 
-    for i in range(32):
+    for i in range(1):
         threads.append(threading.Thread(target=run, args=[str(i)]))
 
     for i in range(len(threads)):

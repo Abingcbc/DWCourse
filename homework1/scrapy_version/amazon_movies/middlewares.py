@@ -26,23 +26,22 @@ class AmazonMoviesDownloaderMiddleware(object):
         return None
 
     def process_response(self, request, response, spider):
-        print('---------------')
         if response.status != 200:
             if response.status == 404:
                 with open("404.log", "a") as file:
                     file.write(response.url + "\n")
                     return response
             log('ErrorCode: ' + str(response.status))
-            requests.get('http://127.0.0.1:5000/delete/' + 
-            request.meta['proxy'].replace('http://',''))
+            # requests.get('http://127.0.0.1:5000/delete/' + 
+            # request.meta['proxy'].replace('http://',''))
             return new_request(request)
         return response
 
     def process_exception(self, request, exception, spider):
         log('MyError: ')
         log(traceback.format_exc())
-        requests.get('http://127.0.0.1:5000/delete/'+
-        request.meta['proxy'].replace('http://',''))
+        # requests.get('http://127.0.0.1:5000/delete/'+
+        # request.meta['proxy'].replace('http://',''))
         with open('error.log', 'a') as file:
             file.write(request.url.split('/')[-1] + '\n')
-            file.write('Retry times overflow\n')
+            file.write(traceback.format_exc())

@@ -14,6 +14,8 @@ import amazon_movies.utils as utils
 import urllib
 from imageRecognize.imageRec import parse_robot
 from amazon_movies.utils import *
+import traceback
+import threading
 
 class AmazonSpider(scrapy.Spider):
     name = 'amazon'
@@ -24,19 +26,19 @@ class AmazonSpider(scrapy.Spider):
         with open('movies_id.txt', 'r') as file:
             count = 0
             for line in file:
-                if count > 10:
-                    break
-                count += 1
+                # if count > 100:
+                #     break
+                # count += 1
                 if len(line.strip()) == 0:
                     continue
                 self.start_urls.append('https://'+self.allowed_domains[0]+'/dp/'+line.strip())
 
     def parse(self, response):
         item = AmazonMoviesItem()
-        print('Get page ' + str(response.url))
+        print('Get page ' + str(response.url) + ' ' + str(response.status))
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
-        proxy = response.request.meta['proxy'].replace('http://','')
+        # proxy = response.request.meta['proxy'].replace('http://','')
         content = BeautifulSoup(response.body, 'lxml')
         if response.status == 404:
             item['validation'] = False
@@ -44,14 +46,21 @@ class AmazonSpider(scrapy.Spider):
         # If this film is banned by robot check, try it again.
         elif not content.find(name='title', text=re.compile('Robot Check')) is None:
             print ('Robot check triggered')
-            urllib.request.urlretrieve(content.find(name='div', attrs={'class':'a-row a-text-center'}).
-            find(name='img',attrs={'src':True}), 'robot.jpg')
-            capt_string = parse_robot('robot.jpg')
-            if capt_string == "error":
-                yield scrapy.Request(response.url, dont_filter=True)
-            else:
-                data = {'field-keywords': capt_string}
-                yield scrapy.FormRequest.from_response(response, formdata=data, callback = self.parse, dont_filter=True)
+            try:
+                thread_id = str(threading.currentThread().ident)
+                urllib.request.urlretrieve(content.find(name='div', attrs={'class':'a-row a-text-center'}).
+                find(name='img',attrs={'src':True})['src'], thread_id + '.jpg')
+                capt_string = parse_robot(thread_id + '.jpg', thread_id)
+                if capt_string == "error":
+                    yield scrapy.Request(response.url, dont_filter=True)
+                else:
+                    data = {'field-keywords': capt_string}
+                    yield scrapy.FormRequest.from_response(response, formdata=data, callback=self.parse, dont_filter=True)
+            except Exception as e:
+                with open('error.log','a') as file:
+                    file.write(item['ID'])
+                    file.write(traceback.format_exc())
+                    file.write('\n')
         else:
             page_type = content.find(id='productTitle')
             if page_type is None:
