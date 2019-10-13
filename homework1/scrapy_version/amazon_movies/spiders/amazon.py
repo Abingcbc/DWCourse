@@ -35,10 +35,10 @@ class AmazonSpider(scrapy.Spider):
 
     def parse(self, response):
         item = AmazonMoviesItem()
-        print('Get page ' + str(response.url) + ' ' + str(response.status))
+        print('Get page ' + str(response.url) + ' ' + str(response.request.meta['proxy']))
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
-        # proxy = response.request.meta['proxy'].replace('http://','')
+        proxy = response.request.meta['proxy'].replace('http://','')
         content = BeautifulSoup(response.body, 'lxml')
         if response.status == 404:
             item['validation'] = False
@@ -52,10 +52,10 @@ class AmazonSpider(scrapy.Spider):
                 find(name='img',attrs={'src':True})['src'], thread_id + '.jpg')
                 capt_string = parse_robot(thread_id + '.jpg', thread_id)
                 if capt_string == "error":
-                    yield scrapy.Request(response.url, dont_filter=True)
+                    yield new_request(scrapy.Request(response.url, dont_filter=True))
                 else:
                     data = {'field-keywords': capt_string}
-                    yield scrapy.FormRequest.from_response(response, formdata=data, callback=self.parse, dont_filter=True)
+                    yield new_request(scrapy.FormRequest.from_response(response, formdata=data, callback=self.parse, dont_filter=True))
             except Exception as e:
                 with open('error.log','a') as file:
                     file.write(item['ID'])

@@ -64,7 +64,7 @@ def prime_parse(response: BeautifulSoup, ID: str):
         return name, star_score, imdb_score, time_len, year, \
         restrict_level, rent_price, buy_price, meta_info, True
     except Exception as e:
-        with open('results/error.log', 'a') as file:
+        with open('error.log', 'a') as file:
             file.write(ID + '\n')
             file.write(traceback.format_exc())
             file.write('\n')
