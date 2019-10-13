@@ -17,7 +17,8 @@ logging.basicConfig(
 )
 
 read_urls()
-scheduler = BlockingScheduler()
-scheduler.add_job(crawl, 'interval', seconds=1)
-print('----- Start -----')
-scheduler.start()
+# scheduler = BlockingScheduler()
+# scheduler.add_job(crawl, 'interval', seconds=1)
+# print('----- Start -----')
+# scheduler.start()
+crawl()

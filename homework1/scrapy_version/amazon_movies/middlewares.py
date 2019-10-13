@@ -22,9 +22,11 @@ class AmazonMoviesDownloaderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
     def process_request(self, request, spider):
-        request = new_request(request)
+        new_request(request)
+        return None
 
     def process_response(self, request, response, spider):
+        print('---------------')
         if response.status != 200:
             if response.status == 404:
                 with open("404.log", "a") as file:

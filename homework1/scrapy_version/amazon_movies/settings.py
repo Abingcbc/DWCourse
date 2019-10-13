@@ -33,7 +33,7 @@ CONCURRENT_REQUESTS = 1
 #CONCURRENT_REQUESTS_PER_IP = 16
 
 # Disable cookies (enabled by default)
-# COOKIES_ENABLED = False
+COOKIES_ENABLED = False
 
 # Disable Telnet Console (enabled by default)
 #TELNETCONSOLE_ENABLED = False
@@ -58,7 +58,7 @@ LOG_LEVEL = 'INFO'
 # See https://docs.scrapy.org/en/latest/topics/downloader-middleware.html
 DOWNLOADER_MIDDLEWARES = {
    'amazon_movies.middlewares.AmazonMoviesDownloaderMiddleware': 200,
-   'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware':400,
+   # 'scrapy.downloadermiddlewares.downloadtimeout.DownloadTimeoutMiddleware':400,
    # 'scrapy.contrib.downloadermiddleware.retry.RetryMiddleware': 500
 }
 

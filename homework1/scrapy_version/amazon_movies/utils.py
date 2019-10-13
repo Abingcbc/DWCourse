@@ -46,16 +46,16 @@ def write_result(item):
 
 # print log in console and into file
 def log(message):
-    warnings.filterwarnings('ignore')
+    # warnings.filterwarnings('ignore')
 
-    logging.basicConfig(
-        level=logging.INFO,
-        filename="amazon.log",
-        filemode="a",
-        format="%(asctime)s - %(levelname)s: %(message)s",
-    )
+    # logging.basicConfig(
+    #     level=logging.INFO,
+    #     filename="amazon.log",
+    #     filemode="a",
+    #     format="%(asctime)s - %(levelname)s: %(message)s",
+    # )
     print(message)
-    logging.info(message)
+    # logging.info(message)
 
 def new_request(request):
     request.headers['User-Agent'] = random.choice(user_agents)

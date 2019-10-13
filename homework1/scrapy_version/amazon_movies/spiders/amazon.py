@@ -24,7 +24,7 @@ class AmazonSpider(scrapy.Spider):
         with open('movies_id.txt', 'r') as file:
             count = 0
             for line in file:
-                if count > 1:
+                if count > 10:
                     break
                 count += 1
                 if len(line.strip()) == 0:

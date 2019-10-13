@@ -2,9 +2,12 @@
 from numpy import *
 from pytesseract import *
 from os import listdir
-import PIL
+from PIL import Image
 import operator
 import sys, os, re, math
+import traceback
+
+thread_name = '0'
 
 def cut_edge(im):
     '''
@@ -248,48 +251,54 @@ def char_to_string(record,region):
         box = (0,0,record[0],h)
         char1 = rotateToMin(region.crop(box))
         changeToText(char1,'char1')
-        char1.save('cache\\char1.jpg')
-    except:
+        char1.save('imageRecognize/'+ thread_name + 'char1.jpg')
+    except Exception as e:
+        print(traceback.format_exc())
         return 'error'
         char1 =  None
     try:   
         box = (record[0],0,record[1],h)
         char2 = rotateToMin(region.crop(box))
         changeToText(char2,'char2')
-        char2.save('cache\\char2.jpg')
+        char2.save('imageRecognize/'+ thread_name + 'char2.jpg')
     except:
+        print(traceback.format_exc())
         return 'error'
         char2 =  None
     try:        
         box = (record[1],0,record[2],h)
         char3 = rotateToMin(region.crop(box))
         changeToText(char3,'char3')
-        char3.save('cache\\char3.jpg')
+        char3.save('imageRecognize/'+ thread_name + 'char3.jpg')
     except:
+        print(traceback.format_exc())
         return 'error'
         char3 =  None
     try:
         box = (record[2],0,record[3],h)
         char4 = rotateToMin(region.crop(box))
         changeToText(char4,'char4')
-        char4.save('cache\\char4.jpg')
+        char4.save('imageRecognize/'+ thread_name + 'char4.jpg')
     except:
+        print(traceback.format_exc())
         return 'error'
         char4 =  None
     try:
         box = (record[3],0,record[4],h)
         char5 = rotateToMin(region.crop(box))
         changeToText(char5,'char5')
-        char5.save('cache\\char5.jpg')
+        char5.save('imageRecognize/'+ thread_name + 'char5.jpg')
     except:
+        print(traceback.format_exc())
         return 'error'
         char5 =  None
     try:    
         box = (record[4],0,w,h)
         char6 = rotateToMin(region.crop(box))
         changeToText(char6,'char6')
-        char6.save('cache\\char6.jpg')
+        char6.save('imageRecognize/'+ thread_name + 'char6.jpg')
     except:
+        print(traceback.format_exc())
         return 'error'
         char6 =  None
     str1 = charTest('char1')
@@ -306,7 +315,7 @@ def changeToText(im,strname):
     图片保存为txt文档
     '''
     testvaries = tranTo2(im)
-    file = open('cache\\' + strname + '.txt','w')
+    file = open('imageRecognize/'+ thread_name + strname + '.txt','w')
     for j in range(40):
         for i in range(30):
             file.write(str(testvaries[j*30+i]))
@@ -332,17 +341,17 @@ def tranTo30_40(im):
         hbit = 40-h
     else:
         hbit = 0
-    for y in range(hbit/2):
+    for y in range(hbit//2):
         for x in range(30):
             lis.append(255)
     for y in range(h):
-        for x in range(wbit/2):
+        for x in range(wbit//2):
             lis.append(255)
         for x in range(w):
             lis.append(data[ y*w + x ])
-        for x in range(wbit-wbit/2):
+        for x in range(wbit-wbit//2):
             lis.append(255)
-    for y in range(hbit-hbit/2):
+    for y in range(hbit-hbit//2):
         for x in range(30):
             lis.append(255)   
     copy.putdata(lis)
@@ -391,7 +400,7 @@ def classify0(inX, dataSet, labels, k):
     for i in range(k):
         voteIlabel = labels[sortedDistIndicies[i]]
         classCount[voteIlabel] = classCount.get(voteIlabel,0) + 1
-    sortedClassCount = sorted(classCount.iteritems(), key=operator.itemgetter(1), reverse=True)
+    sortedClassCount = sorted(classCount.items(), key=operator.itemgetter(1), reverse=True)
     return sortedClassCount[0][0]
 
 def charTest(charname):
@@ -399,7 +408,7 @@ def charTest(charname):
     识别入口函数，处理traindatatxt
     '''
     hwLabels = []
-    traindatatext = listdir('traindatatext')           #load the training set
+    traindatatext = listdir('imageRecognize/traindatatext')           #load the training set
     m = len(traindatatext)
     trainingMat = zeros((m,1200))
     for i in range(m):
@@ -407,21 +416,24 @@ def charTest(charname):
         fileStr = fileNameStr.split('.')[0]     #take off .txt
         charNameStr = fileStr.split('_')[0]
         hwLabels.append(charNameStr)
-        trainingMat[i,:] = vector('traindatatext/%s' % fileNameStr)
-    vectorUnderTest = vector('cache\\' + charname + '.txt')
+        trainingMat[i,:] = vector('imageRecognize/traindatatext/%s' % fileNameStr)
+    vectorUnderTest = vector('imageRecognize/'+ thread_name + charname + '.txt')
     Result = classify0(vectorUnderTest, trainingMat, hwLabels, 3)
     return Result
 
-def parse_robot(image):
+def parse_robot(image, tn):
     '''
     main func
     '''
+    global thread_name
+    thread_name = tn
     #打开图像
-    im = PIL.open(image)
+    im = Image.open(image)
     #切除图像边缘
     region = cut_edge(im)
     #分割单个字符
     record = cut_char(region)
     #图像转换为文字
     string = char_to_string(record,region)
+    print(string + ' ' + thread_name)
     return string
