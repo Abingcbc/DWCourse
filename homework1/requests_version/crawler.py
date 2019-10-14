@@ -61,9 +61,6 @@ def get_and_parse(url, item, session, thread_name):
                 'amzn-r':content.find(attrs={'name':'amzn-r'})['value'],
                 'field-keywords': capt_string
             }
-            headers['Referer'] = url
-            headers['cookie'] = session.cookies
-            headers['upgrade-insecure-requests'] = 1
             r = session.get('https://www.amazon.com/errors/validateCapcha', 
             params=data,headers=headers,allow_redirects=True)
             with open('/Users/cbc/Desktop/1.html') as file:

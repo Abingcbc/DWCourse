@@ -35,10 +35,10 @@ class AmazonSpider(scrapy.Spider):
 
     def parse(self, response):
         item = AmazonMoviesItem()
-        print('Get page ' + str(response.url) + ' ' + str(response.request.meta['proxy']))
+        print('Get page ' + str(response.url) )#+ ' ' + str(response.request.meta['proxy']))
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
-        proxy = response.request.meta['proxy'].replace('http://','')
+        # proxy = response.request.meta['proxy'].replace('http://','')
         content = BeautifulSoup(response.body, 'lxml')
         if response.status == 404:
             item['validation'] = False

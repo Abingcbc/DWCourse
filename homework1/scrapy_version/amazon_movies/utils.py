@@ -59,11 +59,11 @@ def log(message):
 
 def new_request(request):
     request.headers['User-Agent'] = random.choice(user_agents)
-    response = eval(requests.get('http://127.0.0.1:5000/get').text)['proxies']
+    response = eval(requests.get('http://127.0.0.1:5010/get/').text).get('proxy')
     while response is None:
         print('----------')
-        response = eval(requests.get('http://127.0.0.1:5000/get').text)['proxies']
-    request.meta['proxy'] = 'http://' + response
-    log('Using proxy: ' + request.meta['proxy'])
+        response = eval(requests.get('http://127.0.0.1:5010/get/').text).get('proxy')
+    # request.meta['proxy'] = 'http://' + response
+    # log('Using proxy: ' + request.meta['proxy'])
     log(request.url)
     return request

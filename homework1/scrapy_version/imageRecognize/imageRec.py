@@ -253,7 +253,7 @@ def char_to_string(record,region):
         changeToText(char1,'char1')
         char1.save('imageRecognize/'+ thread_name + 'char1.jpg')
     except Exception as e:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return 'error'
         char1 =  None
     try:   
@@ -262,7 +262,7 @@ def char_to_string(record,region):
         changeToText(char2,'char2')
         char2.save('imageRecognize/'+ thread_name + 'char2.jpg')
     except:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return 'error'
         char2 =  None
     try:        
@@ -271,7 +271,7 @@ def char_to_string(record,region):
         changeToText(char3,'char3')
         char3.save('imageRecognize/'+ thread_name + 'char3.jpg')
     except:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return 'error'
         char3 =  None
     try:
@@ -280,7 +280,7 @@ def char_to_string(record,region):
         changeToText(char4,'char4')
         char4.save('imageRecognize/'+ thread_name + 'char4.jpg')
     except:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return 'error'
         char4 =  None
     try:
@@ -289,7 +289,7 @@ def char_to_string(record,region):
         changeToText(char5,'char5')
         char5.save('imageRecognize/'+ thread_name + 'char5.jpg')
     except:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return 'error'
         char5 =  None
     try:    
@@ -298,7 +298,7 @@ def char_to_string(record,region):
         changeToText(char6,'char6')
         char6.save('imageRecognize/'+ thread_name + 'char6.jpg')
     except:
-        print(traceback.format_exc())
+        # print(traceback.format_exc())
         return 'error'
         char6 =  None
     str1 = charTest('char1')
