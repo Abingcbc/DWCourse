@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+import scrapy
 from scrapy import signals
 import random
 import time
@@ -22,7 +23,7 @@ class AmazonMoviesDownloaderMiddleware(object):
         spider.logger.info('Spider opened: %s' % spider.name)
 
     def process_request(self, request, spider):
-        new_request(request)
+        new_request(request, spider)
         return None
 
     def process_response(self, request, response, spider):
@@ -32,16 +33,21 @@ class AmazonMoviesDownloaderMiddleware(object):
                     file.write(response.url + "\n")
                     return response
             log('ErrorCode: ' + str(response.status) + ' ' + str(response.url))
-            # requests.get('http://127.0.0.1:5000/delete?proxy=' + 
-            # request.meta['proxy'].replace('http://',''))
-            return new_request(request)
+            if request.url.find('errors') >= 0:
+                raise scrapy.exceptions.IgnoreRequest
+            print('-'*10+' Delete Proxy '+'-'*10)
+            requests.get('http://127.0.0.1:5010/delete?proxy=' + 
+            request.meta['proxy'].replace('http://',''))
+            return new_request(request, spider)
         return response
 
     def process_exception(self, request, exception, spider):
-        log('MyError: ')
-        log(traceback.format_exc())
-        # requests.get('http://127.0.0.1:5010/delete?proxy='+
-        # request.meta['proxy'].replace('http://',''))
+        log('MyError: ' + request.url + ' ' + str(exception))
         with open('error.log', 'a') as file:
-            file.write(request.url.split('/')[-1] + '\n')
+            file.write(request.url + '\n')
             file.write(traceback.format_exc())
+            file.write('\n')
+        print('-'*10+' Delete Proxy '+'-'*10)
+        requests.get('http://127.0.0.1:5010/delete?proxy='+
+        request.meta['proxy'].replace('http://',''))
+        return new_request(request, spider)

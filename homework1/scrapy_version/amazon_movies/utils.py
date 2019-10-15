@@ -57,13 +57,21 @@ def log(message):
     print(message)
     # logging.info(message)
 
-def new_request(request):
+def new_request(request, spider):
+    if request.meta.get('robot') == 1:
+        print('robot check request ' + request.url)
+        return request
     request.headers['User-Agent'] = random.choice(user_agents)
+    request.meta['proxy'] = 'http://' + get_proxy()
+    # request.cookies = spider.cookieJar.extract_cookies()
+    # print(request.cookies)
+    log('Using proxy: ' + request.meta['proxy'])
+    log(request.url)
+    return request
+
+def get_proxy():
     response = eval(requests.get('http://127.0.0.1:5010/get/').text).get('proxy')
     while response is None:
         print('----------')
         response = eval(requests.get('http://127.0.0.1:5010/get/').text).get('proxy')
-    # request.meta['proxy'] = 'http://' + response
-    # log('Using proxy: ' + request.meta['proxy'])
-    log(request.url)
-    return request
+    return response

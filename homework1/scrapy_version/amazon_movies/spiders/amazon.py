@@ -16,14 +16,18 @@ from imageRecognize.imageRec import parse_robot
 from amazon_movies.utils import *
 import traceback
 import threading
+from scrapy.http.cookies import CookieJar
 
 class AmazonSpider(scrapy.Spider):
     name = 'amazon'
     allowed_domains = ['www.amazon.com']
-    start_urls = []
+    start_urls = [
+    ]
+    cookieJar = CookieJar()
+
     def __init__(self, name=None, **kwargs):
         super().__init__(name=name, **kwargs)
-        with open('movies_id.txt', 'r') as file:
+        with open('to_find.txt', 'r') as file:
             count = 0
             for line in file:
                 # if count > 100:
@@ -35,11 +39,11 @@ class AmazonSpider(scrapy.Spider):
 
     def parse(self, response):
         item = AmazonMoviesItem()
-        print('Get page ' + str(response.url) )#+ ' ' + str(response.request.meta['proxy']))
+        print('Get page ' + str(response.url) + ' ' + str(response.request.meta['proxy']))
+        proxy = response.request.meta['proxy'].replace('http://','')
+        content = BeautifulSoup(response.body, 'lxml')
         item['ID'] = response.url
         item['ID'] = item['ID'].split('/')[-1].strip()
-        # proxy = response.request.meta['proxy'].replace('http://','')
-        content = BeautifulSoup(response.body, 'lxml')
         if response.status == 404:
             item['validation'] = False
             yield item
@@ -49,13 +53,19 @@ class AmazonSpider(scrapy.Spider):
             try:
                 thread_id = str(threading.currentThread().ident)
                 urllib.request.urlretrieve(content.find(name='div', attrs={'class':'a-row a-text-center'}).
-                find(name='img',attrs={'src':True})['src'], thread_id + '.jpg')
-                capt_string = parse_robot(thread_id + '.jpg', thread_id)
+                find(name='img',attrs={'src':True})['src'], item['ID'] + '.jpg')
+                capt_string = parse_robot(item['ID'] + '.jpg', item['ID'])
+                os.remove(item['ID'] + '.jpg')
+                print('remove ' + item['ID'] + '.jpg')
                 if capt_string == "error":
-                    yield new_request(scrapy.Request(response.url, dont_filter=True))
+                    yield scrapy.Request(response.url, dont_filter=True)
                 else:
                     data = {'field-keywords': capt_string}
-                    yield new_request(scrapy.FormRequest.from_response(response, formdata=data, callback=self.parse, dont_filter=True))
+                    robot_retry = scrapy.FormRequest.from_response(response, formdata=data, 
+                    callback=self.parse, #dont_filter=True,
+                    meta={'robot':1,'proxy':response.request.meta['proxy']}
+                    )
+                    yield robot_retry
             except Exception as e:
                 with open('error.log','a') as file:
                     file.write(item['ID'])

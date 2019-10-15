@@ -436,4 +436,7 @@ def parse_robot(image, tn):
     #图像转换为文字
     string = char_to_string(record,region)
     print(string + ' ' + thread_name)
+    for i in range(1,7):
+        os.remove('imageRecognize/'+thread_name+'char'+str(i)+'.txt')
+        os.remove('imageRecognize/'+thread_name+'char'+str(i)+'.jpg')
     return string

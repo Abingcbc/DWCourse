@@ -4,7 +4,7 @@ with open('movies_id.txt','r') as file:
         movies_id.add(line.strip())
 
 found_id = set([])
-with open('found.txt', 'r') as file:
+with open('found_0.txt', 'r') as file:
     for line in file:
         found_id.add(line.strip())
 

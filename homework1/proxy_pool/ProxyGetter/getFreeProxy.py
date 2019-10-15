@@ -61,7 +61,7 @@ class GetFreeProxy(object):
                     print(e)
 
     @staticmethod
-    def freeProxy02(count=80):
+    def freeProxy02(count=20):
         """
         代理66 http://www.66ip.cn/
         :param count: 提取数量
@@ -109,7 +109,7 @@ class GetFreeProxy(object):
                 pass
 
     @staticmethod
-    def freeProxy03(page_count=5):
+    def freeProxy03(page_count=1):
         """
         西刺代理 http://www.xicidaili.com
         :return:
@@ -175,9 +175,6 @@ class GetFreeProxy(object):
             'https://www.kuaidaili.com/free/inha/',
             'https://www.kuaidaili.com/free/intr/'
         ]
-        for i in range(2,40):
-            url_list.append(url_list[0]+str(i)+'/')
-            url_list.append(url_list[1]+str(i)+'/')
         for url in url_list:
             tree = getHtmlTree(url)
             proxy_list = tree.xpath('.//table//tr')
@@ -234,7 +231,7 @@ class GetFreeProxy(object):
                 yield ":".join(proxy)
 
     @staticmethod
-    def freeProxy09(page_count=5):
+    def freeProxy09(page_count=2):
         """
         http://ip.jiangxianli.com/?page=
         免费代理库
@@ -278,15 +275,15 @@ class GetFreeProxy(object):
     #         for proxy in proxies:
     #             yield base64.b64decode(proxy).decode()
 
-    @staticmethod
-    def freeProxy12():
-        urls = ['https://list.proxylistplus.com/Fresh-HTTP-Proxy-List-1']
-        request = WebRequest()
-        for url in urls:
-            r = request.get(url, timeout=10)
-            proxies = re.findall(r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>[\s\S]*?<td>(\d+)</td>', r.text)
-            for proxy in proxies:
-                yield ':'.join(proxy)
+    # @staticmethod
+    # def freeProxy12():
+    #     urls = ['https://list.proxylistplus.com/Fresh-HTTP-Proxy-List-1']
+    #     request = WebRequest()
+    #     for url in urls:
+    #         r = request.get(url, timeout=10)
+    #         proxies = re.findall(r'<td>(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})</td>[\s\S]*?<td>(\d+)</td>', r.text)
+    #         for proxy in proxies:
+    #             yield ':'.join(proxy)
 
     @staticmethod
     def freeProxy13(max_page=2):
@@ -308,7 +305,7 @@ class GetFreeProxy(object):
                 yield ':'.join(proxy)
 
     @staticmethod
-    def freeProxy14(max_page=5):
+    def freeProxy14(max_page=2):
         """
         http://www.89ip.cn/index.html
         89免费代理
