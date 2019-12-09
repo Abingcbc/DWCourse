@@ -51,26 +51,32 @@ class AmazonSpider(scrapy.Spider):
         elif not content.find(name='title', text=re.compile('Robot Check')) is None:
             print ('Robot check triggered')
             try:
-                thread_id = str(threading.currentThread().ident)
-                urllib.request.urlretrieve(content.find(name='div', attrs={'class':'a-row a-text-center'}).
-                find(name='img',attrs={'src':True})['src'], item['ID'] + '.jpg')
-                capt_string = parse_robot(item['ID'] + '.jpg', item['ID'])
-                os.remove(item['ID'] + '.jpg')
-                print('remove ' + item['ID'] + '.jpg')
-                if capt_string == "error":
-                    yield scrapy.Request(response.url, dont_filter=True)
-                else:
-                    data = {'field-keywords': capt_string}
-                    robot_retry = scrapy.FormRequest.from_response(response, formdata=data, 
-                    callback=self.parse, #dont_filter=True,
-                    meta={'robot':1,'proxy':response.request.meta['proxy']}
-                    )
-                    yield robot_retry
+                print('-'*10+' Delete Proxy '+'-'*10)
+                requests.get('http://127.0.0.1:5010/delete?proxy=' + proxy)
+                yield scrapy.Request(response.url)
+            #     thread_id = str(threading.currentThread().ident)
+            #     urllib.request.urlretrieve(content.find(name='div', attrs={'class':'a-row a-text-center'}).
+            #     find(name='img',attrs={'src':True})['src'], item['ID'] + '.jpg')
+            #     capt_string = parse_robot(item['ID'] + '.jpg', item['ID'])
+            #     os.remove(item['ID'] + '.jpg')
+            #     print('remove ' + item['ID'] + '.jpg')
+            #     if capt_string == "error":
+            #         yield scrapy.Request(response.url, dont_filter=True)
+            #     else:
+            #         data = {'field-keywords': capt_string}
+            #         robot_retry = scrapy.FormRequest.from_response(response, formdata=data, 
+            #         callback=self.parse, #dont_filter=True,
+            #         meta={'robot':1,'proxy':response.request.meta['proxy']}
+            #         )
+            #         yield robot_retry
             except Exception as e:
                 with open('error.log','a') as file:
                     file.write(item['ID'])
                     file.write(traceback.format_exc())
                     file.write('\n')
+                if type(e) is AttributeError:
+                    with open('not_movie_id.txt','a') as file:
+                        file.write(item['ID'])
         else:
             page_type = content.find(id='productTitle')
             if page_type is None:

@@ -3,6 +3,7 @@ import random
 import requests
 import logging
 import warnings
+import time
 
 count = 0
 user_agents = [
@@ -59,7 +60,7 @@ def log(message):
 
 def new_request(request, spider):
     if request.meta.get('robot') == 1:
-        print('robot check request ' + request.url)
+        print('robot check request ' + request.url + ' ' + request.meta['proxy'])
         return request
     request.headers['User-Agent'] = random.choice(user_agents)
     request.meta['proxy'] = 'http://' + get_proxy()
@@ -74,4 +75,5 @@ def get_proxy():
     while response is None:
         print('----------')
         response = eval(requests.get('http://127.0.0.1:5010/get/').text).get('proxy')
+        time.sleep(5)
     return response
