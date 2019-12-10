@@ -1,16 +1,7 @@
-field_map = {}
-with open('../results.txt', 'r') as file:
-    for line in file:
-        field = line.strip().split(':')[0]
-        if field == '':
-            continue
-        if field_map.get(field, None) is not None:
-            field_map[field] += 1
-        else:
-            field_map[field] = 1
-count = 0
-for key, value in field_map.items():
-    if value > 10000:
-        print(key.lower() + ': ' + str(value))
-        count += 1
-print("total attributes: " + str(count))
+movie_attr = ['name', 'star_score', 'restrict_level', 'buy_price',
+              'actors','directors', 'writers','producers',
+              'format','language', 'number_of_tapes','asin',
+              'year','region','number_of_discs', 'studio','dvd_release_date',
+              'imdb_score','time_len','rent_price', 'genres','starring',
+              'supporting_actors','audio_languages', 'purchase_rights','subtitles',
+              'aspect_ratio','vhs_release_date', 'dubbed']
