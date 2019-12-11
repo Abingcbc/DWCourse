@@ -36,7 +36,7 @@ PY3 = sys.version_info >= (3,)
 DB_TYPE = getenv('db_type', 'REDIS').upper()
 DB_HOST = getenv('db_host', '127.0.0.1')
 DB_PORT = getenv('db_port', '6379')
-DB_PASSWORD = getenv('db_password', 'friday')
+DB_PASSWORD = getenv('db_password', '')
 
 
 """ 数据库配置 """
