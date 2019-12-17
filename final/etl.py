@@ -1,19 +1,20 @@
 import pandas as pd
+from datetime import datetime
 
 origin_attr = ['id', 'name', 'star_score', 'restrict_level', 'buy_price',
               'actors', 'directors', 'writers', 'producers',
               'format', 'language', 'number_of_tapes', 'asin',
-              'year', 'region', 'number_of_discs', 'studio',
+              'year', 'month', 'day', 'week', 'region', 'number_of_discs', 'studio',
               'imdb_score', 'time_len', 'rent_price', 'genres', 'starring',
               'supporting_actors', 'audio_languages', 'purchase_rights', 'subtitles',
-              'aspect_ratio', 'dubbed']
-month_map = {'January':1, 'February':2, 'March':3, 'April':4, 'May':5, 'June':6,
-             'July':7, 'August':8, 'September':9, 'October':10, 'November':11, 'December':12}
+              'aspect_ratio', 'dubbed', 'supporter']
+month_map = {'january':'1', 'february':'2', 'march':'3', 'april':'4', 'may':'5', 'june':'6',
+             'july':'7', 'august':'8', 'september':'9', 'october':'10', 'november':'11', 'december':'12'}
 
 
 df = []
 count = 0
-with open('results.txt', 'r') as file:
+with open('final.txt', 'r') as file:
     tmp_map = {}
     for line in file:
         split_arr = line.strip().split(':')
@@ -40,10 +41,12 @@ with open('results.txt', 'r') as file:
                 field = 'year'
                 date_split = attr.split(',')
                 attr = date_split[-1].strip()
-                tmp_map['month'] = month_map[date_split[0].strip().split(' ')[0].strip()]
+                tmp_map['month'] = month_map[date_split[0].strip().split(' ')[0].strip().lower()]
                 tmp_map['day'] = date_split[0].strip().split(' ')[1].strip()
+                tmp_map['week'] = str(datetime.strptime(attr + '-' + tmp_map['month']
+                                                    + '-' + tmp_map['day'], '%Y-%M-%d').weekday())
             if field in origin_attr:
                 tmp_map[field] = attr
     df.append(tmp_map)
-# df = pd.DataFrame(df, columns=movie_attr)
-# df.to_csv('movies.csv')
+df = pd.DataFrame(df, columns=origin_attr, dtype=str)
+df.to_csv('movies.csv')

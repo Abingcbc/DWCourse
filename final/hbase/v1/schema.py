@@ -2,11 +2,11 @@ import happybase
 import pandas as pd
 
 connection = happybase.Connection("localhost")
-print('connect hbase successfully\n')
+print('connect HBase successfully\n')
 
-# connection.create_table("movie", {"cf": dict()})
-# connection.create_table("review", {"cf": dict()})
-# print('create table successfully\n')
+connection.create_table("movie", {"cf": dict()})
+connection.create_table("review", {"cf": dict()})
+print('create table successfully\n')
 
 movie_table = connection.table("movie")
 review_table = connection.table("review")
@@ -30,6 +30,7 @@ movie_attr = {
     "year": "year",
     "month": "month",
     "day": "day",
+    "week": "week",
     "imdb_score": "imdb",
     "time_len": "len",
     "rent_price": "rent",
@@ -45,6 +46,7 @@ movie_attr = {
 }
 
 df = pd.read_csv('../../movies.csv', dtype=str)
+print('Begin insert')
 count = 0
 for index, row in df.iterrows():
     temp_map = {}
@@ -55,11 +57,7 @@ for index, row in df.iterrows():
     count += 1
     if count % 10000 == 0:
         print('----' + str(count) + '----')
-print(count)
 
-with open('../not_insert.txt','w') as file:
-    for index, row in df.iterrows():
-        if len(movie_table.row(row['id'])) == 0:
-            file.write(row['id']+'\n')
-        if index % 10000 == 0:
-            print(index)
+connection.close()
+
+print('insert ' + str(count) + ' rows into HBase')
