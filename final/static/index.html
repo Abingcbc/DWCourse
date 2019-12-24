@@ -54,6 +54,7 @@
         <div class="visual_search" style="margin: 10%;"></div>
 
         <h3>共查询到 <span id="find_count"></span> 条记录</h3>
+        <h3>耗时 <span id="cost_time"></span></h3>
         <div id="result_table"></div>
     </div>
 
@@ -92,6 +93,7 @@
                                 console.log(response)
                                 document.getElementById("find_count").innerHTML = response['count']
                                 document.getElementById("result_table").innerHTML = response['result']
+                                document.getElementById("cost_time").innerHTML = response['time']
                                 $('.dataframe').DataTable();
                             }
                         })
@@ -100,10 +102,18 @@
                     },
                     facetMatches: function (callback) {
                         callback([
+                            'name',
+                            'relation',
+                            'genres',
+                            'score',
+                            'sentiment',
                             { label: 'year', category: 'time' },
                             { label: 'month', category: 'time' },
                             { label: 'week', category: 'time' },
                             { label: 'season', category: 'time' },
+                            { label: 'director', category: 'people'},
+                            { label: 'actor', category: 'people'},
+                            { label: 'starring', category: 'people'}
                         ], {
                             preserveOrder: true
                         });
